@@ -1,6 +1,4 @@
 <div align="center">
-  <img src="visualizations/banner.png" width="100%" style="border-radius: 10px;" alt="SECS/GEM AI Edge Banner">
-  <br><br>
   <h1>🏭 SECS/GEM Edge AI: Tera-Ensemble Defect Engine</h1>
   <p><strong>Ultra-Precision Semiconductor Equipment Protocol Inference Architecture</strong></p>
 
@@ -12,13 +10,19 @@
 
 <br>
 
-## 📌 The Philosophy: "Zero Defect Escape over Millisecond Latency"
-
-In semiconductor manufacturing and fab operations, a single defect escaping to the market can result in catastrophic financial losses, massive recalls, and severe damage to client trust. 
-
-While conventional AI edge deployments emphasize quantization and pruning to achieve sub-millisecond inference speeds, **this architecture takes the exact opposite approach.** We deliberately sacrifice inference speed to prioritize absolute detection accuracy. In the highly imbalanced SECOM dataset, quantized models lose critical boundary resolution, missing defects. 
-
-By running an extremely heavy **22-Model Stacking Ensemble**, we ensure maximum sensitivity. To bridge this heavy computation with real-time fab execution protocols (e.g., SECS/GEM, EDA), the trained Python pipeline is designed to be exported to ONNX and deployed purely in **C++ on High-Performance Edge Servers**.
+<table>
+  <tr>
+    <td width="60%" valign="top">
+      <h2>📌 The Philosophy: "Zero Defect Escape"</h2>
+      <p>In semiconductor manufacturing and fab operations, a single defect escaping to the market can result in catastrophic financial losses, massive recalls, and severe damage to client trust.</p>
+      <p>While conventional AI edge deployments emphasize quantization and pruning to achieve sub-millisecond inference speeds, <strong>this architecture takes the exact opposite approach.</strong> We deliberately sacrifice inference speed to prioritize absolute detection accuracy. In the highly imbalanced SECOM dataset, quantized models lose critical boundary resolution, missing defects.</p>
+      <p>By running an extremely heavy <strong>22-Model Stacking Ensemble</strong>, we ensure maximum sensitivity. To bridge this heavy computation with real-time fab execution protocols (e.g., SECS/GEM, EDA), the trained Python pipeline is designed to be exported to ONNX and deployed purely in <strong>C++ on High-Performance Edge Servers</strong>.</p>
+    </td>
+    <td width="40%" valign="center">
+      <img src="visualizations/banner.png" width="100%" alt="SECS/GEM AI Edge Banner">
+    </td>
+  </tr>
+</table>
 
 ---
 
@@ -73,7 +77,7 @@ By synthetically generating minority class samples, the models can learn the exa
 
 ## 🔍 4. The Tera Search
 
-To find the optimal ensemble combination, we deployed a massive automated search algorithm.
+To find the optimal automated search algorithm.
 
 <div align="center">
   <img src="visualizations/viz_10_tera_search_scale.png" width="48%">
@@ -147,4 +151,3 @@ By pushing the inference entirely to C++, we maintain the **flawless accuracy** 
 
 ---
 *Built for zero-defect semiconductor manufacturing.*
-

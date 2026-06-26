@@ -10,6 +10,11 @@
 
 <br>
 
+> ⚠️ **Copyright Notice**  
+> Copyright (c) 2026 Kang Gyu Min. All rights reserved.
+
+<br>
+
 <table>
   <tr>
     <td width="60%" valign="top">
@@ -156,7 +161,22 @@ Ort::Session session(env, "secom_tera_ensemble.onnx", session_options);
 By pushing the inference entirely to C++, we maintain the **flawless accuracy** of the 22-model stacking architecture while achieving acceptable latency limits for real-time factory operation.
 
 ---
+
+## 📚 References & Acknowledgments
+
+This architecture builds upon established industrial standards and breakthrough research in machine learning:
+
+- **Dataset Source**: [UCI Machine Learning Repository - SECOM Dataset](https://archive.ics.uci.edu/ml/datasets/SECOM)
+- **Data Balancing (SMOTE)**: Chawla, N. V., et al. "SMOTE: Synthetic Minority Over-sampling Technique." *Journal of Artificial Intelligence Research* 16 (2002): 321-357.
+- **Ensemble Methodology**: Wolpert, D. H. "Stacked Generalization." *Neural Networks* 5.2 (1992): 241-259.
+- **Industrial Protocols**:
+  - [SEMI E37 - High-Speed SECS Message Services (HSMS)](https://www.semi.org/en/products-services/standards)
+  - [SEMI E5 - SECS-II (SEMI Equipment Communications Standard 2)](https://www.semi.org/en/products-services/standards)
+- **Edge Deployment (ONNX)**: [ONNX Runtime C++ API Documentation](https://onnxruntime.ai/docs/api/c/)
+
+---
 *Built for zero-defect semiconductor manufacturing.*
+
 
 By pushing the inference entirely to C++, we maintain the **flawless accuracy** of the 22-model stacking architecture while achieving acceptable latency limits for real-time factory operation.
 

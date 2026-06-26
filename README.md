@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/ONNX-005CED?style=for-the-badge&logo=onnx&logoColor=white">
 </div>
 
-<br> 
+<br>
 
 <table>
   <tr>
@@ -49,29 +49,35 @@ Evaluated dynamically on an **unseen test set (314 samples)**, the Tera Ensemble
 
 ---
 
-## 📊 2. The Data Challenge
+## 📊 2. The Data Challenge: A Notoriously Noisy Dataset
 
-The UCI SECOM dataset presents two massive challenges common in semiconductor manufacturing: extreme class imbalance and severe sensor data sparsity.
+The UCI SECOM dataset is infamous in the machine learning community for being extremely difficult to model due to its chaotic nature. It perfectly mirrors the harsh realities of raw semiconductor equipment logs:
 
 <div align="center">
   <img src="visualizations/viz_01_class_distribution.png" width="48%">
   <img src="visualizations/viz_02_missing_values.png" width="48%">
 </div>
 
-- **Extreme Imbalance**: Only ~6.6% of the wafers are actually defective. Traditional models trained on this will simply predict "Pass" for everything, yielding zero value.
-- **Missing Sensor Values**: Many sensors drop data randomly or have different sampling rates, leading to massive gaps across the 590 sensor readings.
+- **Extreme Noise & Outliers**: Sensor readings frequently spike to absurd values due to equipment calibration resets or electrical interference.
+- **Massive Sparsity**: Out of 590 sensors, many drop data randomly or have different sampling rates, leading to massive missing value gaps.
+- **Severe Class Imbalance**: Only ~6.6% of the wafers are actually defective. Traditional models simply predict "Pass" for everything, yielding zero value.
 
 ---
 
-## 🛠️ 3. Preprocessing & Data Balancing
+## 🛠️ 3. Preprocessing: The "Zero-Leakage" Pipeline
 
-To solve the missing value problem, we utilized a **KNN Imputer (K=5)** to restore missing signals based on similar sensor patterns. To solve the imbalance, we applied **SMOTE** (Synthetic Minority Over-sampling Technique) strictly to the training set to prevent data leakage.
+To tame this notorious dataset, we constructed a strict 4-step preprocessing pipeline. Importantly, to prevent any **Data Leakage**, all scalers and imputers were fitted *only* on the training set.
+
+1. **Feature Selection (Top 150)**: We aggressively filtered out 440 pure-noise sensors, isolating only the top 150 signals that mathematically correlate with defect boundaries.
+2. **KNN Imputer (K=5)**: Instead of filling missing values with a naive average, we restored missing signals by borrowing values from the 5 most similar wafer patterns.
+3. **RobustScaler**: Standard scaling fails when data is as noisy as SECOM. We used RobustScaler (using median/IQR), which is immune to the extreme factory outliers.
+4. **SMOTE**: We synthetically generated minority class (Defect) samples strictly on the training set to resolve the 93:7 imbalance.
 
 <div align="center">
   <img src="visualizations/viz_03_smote_comparison.png" width="800">
 </div>
 
-By synthetically generating minority class samples, the models can learn the exact boundaries of a defective wafer without simply memorizing the negative class.
+By applying this rigorous pipeline, the models learn the exact boundaries of a defective wafer rather than memorizing noise.
 
 ---
 
@@ -146,6 +152,11 @@ Ort::Session session(env, "secom_tera_ensemble.onnx", session_options);
 // 3. SECS/GEM Data Input -> Inference -> Alarm Trigger
 // (Pass 150 float sensor array into the session)
 ```
+
+By pushing the inference entirely to C++, we maintain the **flawless accuracy** of the 22-model stacking architecture while achieving acceptable latency limits for real-time factory operation.
+
+---
+*Built for zero-defect semiconductor manufacturing.*
 
 By pushing the inference entirely to C++, we maintain the **flawless accuracy** of the 22-model stacking architecture while achieving acceptable latency limits for real-time factory operation.
 

@@ -20,54 +20,87 @@ By running an extremely heavy **22-Model Stacking Ensemble**, we ensure maximum 
 
 ---
 
-## 🏗️ Architecture: The 50x50 Tera Search
+## 📊 1. The Data Challenge
 
-We conducted an exhaustive search evaluating **2,252,205 combinations** (50 candidate base models × 50 ensemble techniques). The winning architecture is the `Stk_RF_D7` stacking ensemble.
-
-### 1. Data Preprocessing Pipeline (Zero Data Leakage)
-1. **KNN Imputer (K=5)**: Restores 100% of missing sensor values using neighbor patterns.
-2. **Feature Selection**: Isolates the Top 150 most highly correlated sensor signals.
-3. **RobustScaler**: Normalizes data based on median/quartiles to resist severe factory outliers.
-4. **SMOTE**: Oversamples the extreme minority class (Defect) specifically on the training set to resolve the severe class imbalance.
-
-### 2. The 22-Model Stacking Ensemble
-Out of 50 candidates, the Meta-Model selected 22 heterogeneous models to form the first layer of predictions:
-- **7 Boosting Models** (LightGBM, XGBoost, AdaBoost, GBM)
-- **7 Forest Models** (Random Forest, Extra Trees)
-- **2 Support Vector Machines** (RBF, Linear)
-- **2 Linear Models** (Logistic Regression, SGD)
-- **2 Discriminant Analysis** (QDA, LDA)
-- **1 Deep Neural Network** (MLP 128)
-
-These 22 probability predictions are fed into a **Random Forest Meta-Model (Max Depth 7)** to make the final rigorous defect prediction.
+The UCI SECOM dataset presents two massive challenges common in semiconductor manufacturing: extreme class imbalance and severe sensor data sparsity.
 
 <div align="center">
-  <img src="visualizations/viz_09_stacking_architecture.png" alt="Stacking Architecture" width="800">
+  <img src="visualizations/viz_01_class_distribution.png" width="48%">
+  <img src="visualizations/viz_02_missing_values.png" width="48%">
+</div>
+
+- **Extreme Imbalance**: Only ~6.6% of the wafers are actually defective. Traditional models trained on this will simply predict "Pass" for everything, yielding zero value.
+- **Missing Sensor Values**: Many sensors drop data randomly or have different sampling rates, leading to massive gaps across the 590 sensor readings.
+
+---
+
+## 🛠️ 2. Preprocessing & Data Balancing
+
+To solve the missing value problem, we utilized a **KNN Imputer (K=5)** to restore missing signals based on similar sensor patterns. To solve the imbalance, we applied **SMOTE** (Synthetic Minority Over-sampling Technique) strictly to the training set to prevent data leakage.
+
+<div align="center">
+  <img src="visualizations/viz_03_smote_comparison.png" width="800">
+</div>
+
+By synthetically generating minority class samples, the models can learn the exact boundaries of a defective wafer without simply memorizing the negative class.
+
+---
+
+## 🔍 3. The Tera Search
+
+To find the optimal ensemble combination, we deployed a massive automated search algorithm.
+
+<div align="center">
+  <img src="visualizations/viz_10_tera_search_scale.png" width="48%">
+  <img src="visualizations/viz_08_model_selection.png" width="48%">
+</div>
+
+- **2.25 Million Combinations**: Evaluated 50 base candidate models crossed with 50 different ensemble/voting strategies.
+- **Winning Subset**: The search identified a highly optimized subset of **22 models** that, when combined, synergize to produce the highest possible F1-Score without overfitting.
+
+---
+
+## 🏗️ 4. The Stacking Architecture
+
+Instead of simple voting, the 22 selected models act as "Level 0" feature extractors. Their probability outputs are fed into a **Random Forest Meta-Model (Max Depth 7)** which makes the final, rigorous decision.
+
+<div align="center">
+  <img src="visualizations/viz_09_stacking_architecture.png" width="800">
+</div>
+
+### Ensemble Composition
+The 22 base models are highly heterogeneous to capture different non-linear sensor relationships:
+- **7 Boosting Models** (LGBM, XGBoost, AdaBoost, GBM)
+- **7 Forest Models** (RF, Extra Trees)
+- **2 Linear Models**, **2 SVMs**, **2 Discriminant Analyzers**, and **1 Deep Neural Network** (MLP-128).
+
+<div align="center">
+  <img src="visualizations/viz_06_ensemble_composition.png" width="48%">
+  <img src="visualizations/viz_07_architecture_detail.png" width="48%">
 </div>
 
 ---
 
-## 🚀 Performance Metrics
+## 🚀 5. Performance Metrics & Curves
 
-Evaluated dynamically on an unseen test set (314 samples), the Tera Ensemble achieves ground-breaking detection capabilities.
-
-- **F1-Score**: `0.5294`
-- **Precision**: `69.23%` (When the alarm triggers, there is a 69.2% probability it is a genuine defect)
-- **Recall**: `42.86%` (Caught nearly half of all extremely subtle defects)
-- **Accuracy**: `94.90%`
-- **Specificity**: `98.63%` (Minimal false alarms)
+Evaluated dynamically on an **unseen test set (314 samples)**, the Tera Ensemble achieves ground-breaking detection capabilities.
 
 <div align="center">
-  <img src="visualizations/viz_06_evaluation_curves.png" alt="Evaluation Curves" width="800">
+  <img src="visualizations/viz_05_performance_metrics.png" width="800">
 </div>
 
-### Confusion Matrix
-| | Predicted Normal | Predicted Defect |
-|---|:---:|:---:|
-| **True Normal** | 289 | 4 (False Alarms) |
-| **True Defect** | 12 (Missed) | **9 (Detected!)** |
+- **F1-Score**: `0.5294` (State-of-the-Art for strict No-Data-Leakage benchmarks on this dataset)
+- **Precision**: `69.23%` (When the alarm triggers, there is a ~70% chance it is a genuine defect)
+- **Recall**: `42.86%` (Caught nearly half of all extremely subtle defects)
 
-*Note: In the context of 592 noisy sensor signals and only 6.6% defect rate, achieving 9 detections with only 4 false alarms saves massive manual inspection costs.*
+### Evaluation Curves & Confusion Matrix
+<div align="center">
+  <img src="visualizations/viz_06_evaluation_curves.png" width="48%">
+  <img src="visualizations/viz_04_confusion_matrix.png" width="48%">
+</div>
+
+- **PR Curve**: The optimal threshold (`0.2113`) was carefully chosen to maximize F1-score on the highly skewed PR curve.
+- **Confusion Matrix**: Achieving 9 true detections with only 4 false alarms is a massive cost-saver in a real-world Fab, where manual inspection is highly expensive.
 
 ---
 
@@ -110,3 +143,4 @@ By pushing the inference entirely to C++, we maintain the **flawless accuracy** 
 
 ---
 *Built for zero-defect semiconductor manufacturing.*
+

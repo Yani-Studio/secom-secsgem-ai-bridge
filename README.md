@@ -20,68 +20,7 @@ By running an extremely heavy **22-Model Stacking Ensemble**, we ensure maximum 
 
 ---
 
-## 📊 1. The Data Challenge
-
-The UCI SECOM dataset presents two massive challenges common in semiconductor manufacturing: extreme class imbalance and severe sensor data sparsity.
-
-<div align="center">
-  <img src="visualizations/viz_01_class_distribution.png" width="48%">
-  <img src="visualizations/viz_02_missing_values.png" width="48%">
-</div>
-
-- **Extreme Imbalance**: Only ~6.6% of the wafers are actually defective. Traditional models trained on this will simply predict "Pass" for everything, yielding zero value.
-- **Missing Sensor Values**: Many sensors drop data randomly or have different sampling rates, leading to massive gaps across the 590 sensor readings.
-
----
-
-## 🛠️ 2. Preprocessing & Data Balancing
-
-To solve the missing value problem, we utilized a **KNN Imputer (K=5)** to restore missing signals based on similar sensor patterns. To solve the imbalance, we applied **SMOTE** (Synthetic Minority Over-sampling Technique) strictly to the training set to prevent data leakage.
-
-<div align="center">
-  <img src="visualizations/viz_03_smote_comparison.png" width="800">
-</div>
-
-By synthetically generating minority class samples, the models can learn the exact boundaries of a defective wafer without simply memorizing the negative class.
-
----
-
-## 🔍 3. The Tera Search
-
-To find the optimal ensemble combination, we deployed a massive automated search algorithm.
-
-<div align="center">
-  <img src="visualizations/viz_10_tera_search_scale.png" width="48%">
-  <img src="visualizations/viz_08_model_selection.png" width="48%">
-</div>
-
-- **2.25 Million Combinations**: Evaluated 50 base candidate models crossed with 50 different ensemble/voting strategies.
-- **Winning Subset**: The search identified a highly optimized subset of **22 models** that, when combined, synergize to produce the highest possible F1-Score without overfitting.
-
----
-
-## 🏗️ 4. The Stacking Architecture
-
-Instead of simple voting, the 22 selected models act as "Level 0" feature extractors. Their probability outputs are fed into a **Random Forest Meta-Model (Max Depth 7)** which makes the final, rigorous decision.
-
-<div align="center">
-  <img src="visualizations/viz_09_stacking_architecture.png" width="800">
-</div>
-
-### Ensemble Composition
-The 22 base models are highly heterogeneous to capture different non-linear sensor relationships:
-- **7 Boosting Models** (LGBM, XGBoost, AdaBoost, GBM)
-- **7 Forest Models** (RF, Extra Trees)
-- **2 Linear Models**, **2 SVMs**, **2 Discriminant Analyzers**, and **1 Deep Neural Network** (MLP-128).
-
-<div align="center">
-  <img src="visualizations/viz_06_ensemble_composition.png" width="48%">
-  <img src="visualizations/viz_07_architecture_detail.png" width="48%">
-</div>
-
----
-
-## 🚀 5. Performance Metrics & Curves
+## 🚀 1. Performance Metrics & Curves
 
 Evaluated dynamically on an **unseen test set (314 samples)**, the Tera Ensemble achieves ground-breaking detection capabilities.
 
@@ -104,12 +43,74 @@ Evaluated dynamically on an **unseen test set (314 samples)**, the Tera Ensemble
 
 ---
 
-## ⚙️ C++ Fab Integration Guide
+## 📊 2. The Data Challenge
+
+The UCI SECOM dataset presents two massive challenges common in semiconductor manufacturing: extreme class imbalance and severe sensor data sparsity.
+
+<div align="center">
+  <img src="visualizations/viz_01_class_distribution.png" width="48%">
+  <img src="visualizations/viz_02_missing_values.png" width="48%">
+</div>
+
+- **Extreme Imbalance**: Only ~6.6% of the wafers are actually defective. Traditional models trained on this will simply predict "Pass" for everything, yielding zero value.
+- **Missing Sensor Values**: Many sensors drop data randomly or have different sampling rates, leading to massive gaps across the 590 sensor readings.
+
+---
+
+## 🛠️ 3. Preprocessing & Data Balancing
+
+To solve the missing value problem, we utilized a **KNN Imputer (K=5)** to restore missing signals based on similar sensor patterns. To solve the imbalance, we applied **SMOTE** (Synthetic Minority Over-sampling Technique) strictly to the training set to prevent data leakage.
+
+<div align="center">
+  <img src="visualizations/viz_03_smote_comparison.png" width="800">
+</div>
+
+By synthetically generating minority class samples, the models can learn the exact boundaries of a defective wafer without simply memorizing the negative class.
+
+---
+
+## 🔍 4. The Tera Search
+
+To find the optimal ensemble combination, we deployed a massive automated search algorithm.
+
+<div align="center">
+  <img src="visualizations/viz_10_tera_search_scale.png" width="48%">
+  <img src="visualizations/viz_08_model_selection.png" width="48%">
+</div>
+
+- **2.25 Million Combinations**: Evaluated 50 base candidate models crossed with 50 different ensemble/voting strategies.
+- **Winning Subset**: The search identified a highly optimized subset of **22 models** that, when combined, synergize to produce the highest possible F1-Score without overfitting.
+
+---
+
+## 🏗️ 5. The Stacking Architecture
+
+Instead of simple voting, the 22 selected models act as "Level 0" feature extractors. Their probability outputs are fed into a **Random Forest Meta-Model (Max Depth 7)** which makes the final, rigorous decision.
+
+<div align="center">
+  <img src="visualizations/viz_09_stacking_architecture.png" width="800">
+</div>
+
+### Ensemble Composition
+The 22 base models are highly heterogeneous to capture different non-linear sensor relationships:
+- **7 Boosting Models** (LGBM, XGBoost, AdaBoost, GBM)
+- **7 Forest Models** (RF, Extra Trees)
+- **2 Linear 파이프라인**, **2 SVMs**, **2 Discriminant Analyzers**, and **1 Deep Neural Network** (MLP-128).
+
+<div align="center">
+  <img src="visualizations/viz_06_ensemble_composition.png" width="48%">
+  <img src="visualizations/viz_07_architecture_detail.png" width="48%">
+</div>
+
+---
+
+## ⚙️ 6. C++ Fab Integration Guide
 
 The ensemble weights are originally trained in Python (`scikit-learn`, `xgboost`, `lightgbm`). To integrate this heavy pipeline into low-level C++ Semiconductor Equipment Protocols without the Python GIL overhead, follow this deployment strategy:
 
 ### 1. Model Export (Python)
 Export the trained preprocessing pipeline and the 22 base models into the ONNX standard format:
+
 ```python
 import skl2onnx
 from skl2onnx import convert_sklearn
@@ -124,6 +125,7 @@ with open("secom_tera_ensemble.onnx", "wb") as f:
 
 ### 2. C++ Edge Inference (C++ / SECS/GEM)
 Load the `.onnx` graph using `ONNXRuntime C++ API` directly on the equipment controller or edge server. This guarantees multi-threaded, low-latency C++ execution of all 22 models simultaneously:
+
 ```cpp
 #include <onnxruntime_cxx_api.h>
 

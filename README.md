@@ -1,6 +1,8 @@
 <div align="center">
-  <h1>🏭 SECOM-Tera-Ensemble</h1>
-  <p><strong>Ultra-Precision Semiconductor Defect Detection Architecture</strong></p>
+  <img src="visualizations/banner.png" width="100%" style="border-radius: 10px;" alt="SECS/GEM AI Edge Banner">
+  <br><br>
+  <h1>🏭 SECS/GEM Edge AI: Tera-Ensemble Defect Engine</h1>
+  <p><strong>Ultra-Precision Semiconductor Equipment Protocol Inference Architecture</strong></p>
 
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white">
   <img src="https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white">
@@ -95,7 +97,7 @@ Instead of simple voting, the 22 selected models act as "Level 0" feature extrac
 The 22 base models are highly heterogeneous to capture different non-linear sensor relationships:
 - **7 Boosting Models** (LGBM, XGBoost, AdaBoost, GBM)
 - **7 Forest Models** (RF, Extra Trees)
-- **2 Linear 파이프라인**, **2 SVMs**, **2 Discriminant Analyzers**, and **1 Deep Neural Network** (MLP-128).
+- **2 Linear Models**, **2 SVMs**, **2 Discriminant Analyzers**, and **1 Deep Neural Network** (MLP-128).
 
 <div align="center">
   <img src="visualizations/viz_06_ensemble_composition.png" width="48%">

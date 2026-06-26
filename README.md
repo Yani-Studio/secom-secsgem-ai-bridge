@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/ONNX-005CED?style=for-the-badge&logo=onnx&logoColor=white">
 </div>
 
-<br>
+<br> 
 
 <table>
   <tr>
